@@ -1,0 +1,10 @@
+MODEL_NAME = 'whiteboard_dl3p_mn'
+OUTPUT_STRIDE = 16
+NUM_CLASSES = 3
+INPUT_SIZE = (512, 512)
+
+# Training
+DATASET_NAME = 'Whiteboard-Semantic-Seg'
+DATASET_VERSION = 13
+BATCH_SIZE = 12
+TRAINING_EPOCHS = 30

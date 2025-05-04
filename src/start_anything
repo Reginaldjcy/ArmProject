@@ -1,0 +1,35 @@
+###### UR5 #######
+ros2 launch ur_robot_driver ur_control.launch.py ur_type:=ur5 robot_ip:=192.168.1.1
+
+ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=ur5 robot_ip:=192.168.1.1
+
+
+###### Orbbec ############
+cd ros2_ws
+source install/setup.bash
+ros2 launch orbbec_camera dabai_dcl.py enable_colored_point_cloud:=true
+
+
+###### ARM ######
+sudo chmod 666 /dev/ttyUSB0
+cd  ros2_ws #roarm_ws_em0
+ros2 run roarm_driver roarm_driver
+
+ros2 launch roarm_moveit_cmd command_control.launch.py rviz_config:=~/roarm_ws_em0/src/roarm_main/roarm_moveit_cmd/config/command_control.rviz
+
+ros2 run roarm_moveit_cmd movepointcmd
+
+######## github ###########
+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
+
+git push https://Reginaldjcy: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@github.com/Reginaldjcy/ArmProject.git
+
+####### Cluster ############
+kubectl scale deployment workspace --replicas=1
+
+kubectl edit deployment workspace 
+
+###### IP ###################
+130.194.140.106
+
+
