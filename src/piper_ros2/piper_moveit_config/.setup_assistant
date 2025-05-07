@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: piper_description
+    relative_path: urdf/piper_description.xacro
+  srdf:
+    relative_path: config/arm.srdf
+  package_settings:
+    author_name: tianhao
+    author_email: tianhao@monash.edu
+    generated_timestamp: 1733380771

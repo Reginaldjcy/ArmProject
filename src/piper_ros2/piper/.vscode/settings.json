@@ -1,0 +1,22 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/tianhao/important/Piper_ros/install/piper_msgs/local/lib/python3.10/dist-packages",
+        "/home/tianhao/important/Piper_ros/build/piper",
+        "/home/tianhao/important/Piper_ros/install/piper/lib/python3.10/site-packages",
+        "/home/tianhao/ros2_ws/build/ros_tcp_endpoint",
+        "/home/tianhao/ros2_ws/install/ros_tcp_endpoint/lib/python3.10/site-packages",
+        "/home/tianhao/ws_livox/install/livox_ros_driver2/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/tianhao/important/Piper_ros/install/piper_msgs/local/lib/python3.10/dist-packages",
+        "/home/tianhao/important/Piper_ros/build/piper",
+        "/home/tianhao/important/Piper_ros/install/piper/lib/python3.10/site-packages",
+        "/home/tianhao/ros2_ws/build/ros_tcp_endpoint",
+        "/home/tianhao/ros2_ws/install/ros_tcp_endpoint/lib/python3.10/site-packages",
+        "/home/tianhao/ws_livox/install/livox_ros_driver2/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}

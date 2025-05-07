@@ -80,9 +80,11 @@ class Movenet(Node):
         self.sync = ApproximateTimeSynchronizer(
             [self.rgb_sub, self.depth_sub],
             queue_size=10,
-            slop=0.1  # second
+            slop=0.5  # second
         )
         self.sync.registerCallback(self.sync_callback)
+        print("pre_aaa")
+
 
         # Publisher
         self.publisher_ = self.create_publisher(TimeFloat, 'hopenet_1', 10)
@@ -91,18 +93,21 @@ class Movenet(Node):
         self.bridge = CvBridge()
     
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print('load_gpu')
 
         # Load Hopenet model
-        self.hopenet_model = load_model("/home/reginald/ros2_ws/src/recognize_pkg/recognize_pkg/hopenet_robust_alpha1.pkl", self.device)
+        self.hopenet_model = load_model("/home/reginald/ArmProject/src/recognize_pkg/recognize_pkg/hopenet_robust_alpha1.pkl", self.device)
         
         # Load YOLOv8n-face model
-        self.face_model = YOLO('/home/reginald/ros2_ws/src/recognize_pkg/recognize_pkg/yolov11n-face.pt')  # Make sure you have the correct model file
+        self.face_model = YOLO('/home/reginald/ArmProject/src/recognize_pkg/recognize_pkg/yolov11n-face.pt')  # Make sure you have the correct model file
+        print("load model")
 
         # Initial
         self.pub_data = None
 
     def sync_callback(self, rgb_msg, depth_msg):
         """Callback for synchronized RGB and Depth images."""
+        print("aaaa")
 
         # Convert ROS Image messages to OpenCV images
         frame = self.bridge.imgmsg_to_cv2(rgb_msg, 'bgr8')

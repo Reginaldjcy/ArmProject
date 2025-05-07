@@ -30,6 +30,10 @@ class Movenet(Node):
         self.rgb_sub = Subscriber(self, Image, '/camera/color/image_raw')
         self.depth_sub = Subscriber(self, Image, '/camera/depth/image_raw')
 
+         # Create a publisher for Image messages
+        self.img_publisher_ = self.create_publisher(Image, 'camera/image', 10)
+        
+
         # Synchronize RGB and Depth images
         self.sync = ApproximateTimeSynchronizer(
             [self.rgb_sub, self.depth_sub],
@@ -46,6 +50,7 @@ class Movenet(Node):
 
         # CV2 bridge
         self.bridge = CvBridge()
+        
 
         # Initialize PyTorch model and transforms
         matplotlib.use('TkAgg')
@@ -56,7 +61,7 @@ class Movenet(Node):
         ])
 
         self.model = network.modeling.deeplabv3plus_mobilenet(num_classes=config.NUM_CLASSES, output_stride=config.OUTPUT_STRIDE)
-        model_path = '/home/reginald/ros2_ws/src/recognize_pkg/recognize_pkg/cp_wb_dl3pmn_3cls_v6.pth'
+        model_path = '/home/reginald/ArmProject/src/recognize_pkg/recognize_pkg/cp_wb_dl3pmn_3cls_v6.pth'
         if os.path.exists(model_path):
             self.get_logger().info(f'Loading pretrained weights from {model_path}')
             self.model.load_state_dict(torch.load(model_path, map_location=self.device, weights_only=True))
@@ -114,15 +119,19 @@ class Movenet(Node):
             # show the largest contours
             cv2.drawContours(frame_out, [shape], -1, (0, 0, 255), 2)
 
+         # Convert OpenCV image to ROS Image message
+        msg = self.bridge.cv2_to_imgmsg(frame_out, encoding='bgr8')
+        self.img_publisher_.publish(msg)
+
         # Display (non-blocking)
-        cv2.imshow('Camera', frame_out)
-        cv2.waitKey(1)  # Non-blocking to avoid freezing the node
+        # cv2.imshow('Camera', frame_out)
+        # cv2.waitKey(1)  # Non-blocking to avoid freezing the node
 
         # self.get_logger().info(f'matrix 1 is {self.matrix1}')
         # self.get_logger().info(f'matrix 2 is {self.matrix2}')
 
         # Update human_1 (placeholder - update based on your detection logic)
-        self.publisher_callback()
+        # self.publisher_callback()
 
     def publisher_callback(self):
         """Publish the human keypoints data."""
