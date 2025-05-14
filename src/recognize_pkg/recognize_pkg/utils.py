@@ -275,3 +275,41 @@ def min_bounding_rectangle(points):
     height = min(edge_lengths)
 
     return width, height
+
+def shrink_rectangle(pts, shrink_amount=2):
+    pts = np.array(pts, dtype=np.float32)
+    new_pts = []
+
+    for i in range(4):
+        prev = pts[(i - 1) % 4]
+        curr = pts[i]
+        next = pts[(i + 1) % 4]
+
+        # 两个相邻边向量
+        v1 = curr - prev
+        v2 = next - curr
+
+        # 单位法向量（垂直方向朝内）
+        n1 = np.array([-v1[1], v1[0]])
+        n2 = np.array([-v2[1], v2[0]])
+        n1 = n1 / np.linalg.norm(n1)
+        n2 = n2 / np.linalg.norm(n2)
+
+        # 两个法向平均
+        move_dir = (n1 + n2)
+        move_dir /= np.linalg.norm(move_dir)
+
+        new_pt = curr + move_dir * shrink_amount
+        new_pts.append(new_pt)
+
+    return np.array(new_pts, dtype=np.int32)
+
+def sort_pts_counterclockwise(pts):
+    pts = np.array(pts, dtype=np.float32).reshape((-1, 2))
+
+    # 计算中心
+    center = np.mean(pts, axis=0)
+    # 计算角度
+    def angle(p): return np.arctan2(p[1] - center[1], p[0] - center[0])
+    sorted_pts = sorted(pts, key=angle)
+    return np.array(sorted_pts, dtype=np.int32)

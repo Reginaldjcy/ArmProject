@@ -22,6 +22,11 @@ import torch
 import cv2
 import os
 
+intrinsic = np.array([[688.4984130859375, 0.0, 639.0274047851562],
+                      [0.0, 688.466552734375, 355.8525390625],
+                      [0.0, 0.0, 1.0]])
+
+
 class Movenet(Node):
     def __init__(self):
         super().__init__("jeff")  # Node name
@@ -30,8 +35,8 @@ class Movenet(Node):
         self.rgb_sub = Subscriber(self, Image, '/camera/color/image_raw')
         self.depth_sub = Subscriber(self, Image, '/camera/depth/image_raw')
 
-         # Create a publisher for Image messages
-        self.img_publisher_ = self.create_publisher(Image, 'camera/image', 10)
+        # Create a publisher for Image messages
+        self.publisher_ = self.create_publisher(TimeFloat, 'jeff_1', 10)
         
 
         # Synchronize RGB and Depth images
@@ -109,29 +114,21 @@ class Movenet(Node):
 
         ############# whiteboard mask #####################
         shapes = solve_mask_quad(whiteboard_full_mask, self.number)
-        if len(shapes) >= self.number:  # 确保至少有两个矩阵
-            self.matrix1 = np.squeeze(shapes[0], axis=1)  # 提取第一个矩阵
-            self.matrix1 = get_depth(self.matrix1, depth_image, color_image)
-            self.matrix2 = np.squeeze(shapes[1], axis=1)  # 提取第二个矩阵
-            self.matrix2 = get_depth(self.matrix2, depth_image, color_image)
+        shapes = np.array(shapes[0]).squeeze() 
+        shapes = sort_pts_counterclockwise(shapes)
+        
+        cv2.drawContours(frame_out, [shapes], -1, (0, 0, 255), 2)
+        # shrink
+        shapes = shrink_rectangle(shapes, shrink_amount=10)
+        cv2.drawContours(frame_out, [shapes], -1, (0, 255, 255), 2)
 
-        for shape in shapes:
-            # show the largest contours
-            cv2.drawContours(frame_out, [shape], -1, (0, 0, 255), 2)
-
-         # Convert OpenCV image to ROS Image message
-        msg = self.bridge.cv2_to_imgmsg(frame_out, encoding='bgr8')
-        self.img_publisher_.publish(msg)
-
+        self.matrix1 = get_depth(shapes, depth_image, color_image)
+        
         # Display (non-blocking)
-        # cv2.imshow('Camera', frame_out)
-        # cv2.waitKey(1)  # Non-blocking to avoid freezing the node
+        cv2.imshow('Camera', frame_out)
+        cv2.waitKey(1)  
 
-        # self.get_logger().info(f'matrix 1 is {self.matrix1}')
-        # self.get_logger().info(f'matrix 2 is {self.matrix2}')
-
-        # Update human_1 (placeholder - update based on your detection logic)
-        # self.publisher_callback()
+        self.publisher_callback()
 
     def publisher_callback(self):
         """Publish the human keypoints data."""
@@ -145,12 +142,7 @@ class Movenet(Node):
 
             # Data            
             float_array = Float32MultiArray()
-            float_array.data = np.concatenate((self.matrix1.flatten(), self.matrix2.flatten())).tolist()
-            # 使用 layout.dim 记录两个矩阵的信息
-            float_array.layout.dim.append(MultiArrayDimension(label="matrix1_rows", size=self.matrix1.shape[0], stride=self.matrix1.shape[1]))
-            float_array.layout.dim.append(MultiArrayDimension(label="matrix1_cols", size=self.matrix1.shape[1], stride=1))
-            float_array.layout.dim.append(MultiArrayDimension(label="matrix2_rows", size=self.matrix2.shape[0], stride=self.matrix2.shape[1]))
-            float_array.layout.dim.append(MultiArrayDimension(label="matrix2_cols", size=self.matrix2.shape[1], stride=1))
+            float_array.data = np.array(self.matrix1).flatten().tolist()
 
             msg.matrix = float_array
             

@@ -5,6 +5,26 @@ from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped, Point, Quaternion
 from msg_interfaces.msg import TimeFloat
 import numpy as np
+from .utils import *
+
+aim_1 = np.array([540, 248, 2428])
+
+webcam_wh = np.array([1280, 720])
+
+webcam_intrinsic = np.array([
+    [954.46228283, 0.0, 310.94013938],
+    [0.0, 956.68474763, 235.31295846],
+    [0.0, 0.0, 1.0]
+])
+
+intrinsic = np.array([[688.4984130859375, 0.0, 639.0274047851562],
+                      [0.0, 688.466552734375, 355.8525390625],
+                      [0.0, 0.0, 1.0]])
+
+
+aim_1 = np.array([540, 248, 2428])
+aim_1 = Pixel2World(aim_1, intrinsic)
+
 
 class PosePublisher(Node):
     def __init__(self):
@@ -23,12 +43,6 @@ class PosePublisher(Node):
 
         # Initialize data containers
         self.situation = None
-
-        ##################
-        self.situation = [11.0, 0.0]
-        ###################
-
-
         self.pose = None
         self.board = None
 
@@ -41,7 +55,7 @@ class PosePublisher(Node):
         self.timer = self.create_timer(1, self.timer_callback)  # 每0.5秒触发一次
 
     def situation_callback(self, msg):
-        self.situation = msg.matrix.data
+        self.situation = np.array(msg.matrix.data).reshape(1,2)
 
     def pose_callback(self, msg):
         self.pose = np.array(msg.matrix.data).reshape(-1, 3)
@@ -59,32 +73,63 @@ class PosePublisher(Node):
             self.get_logger().info("Waiting for data...")
             return
 
-        if self.situation == [11.0, 0.0]:
+        if np.array_equal(self.situation, np.array([[11.0, 0.0]])):
             target_point = np.mean(self.pose[:1], axis=0)
             label = "🧑"
-        elif self.situation == [12.0, 0.0]:
-            target_point = np.mean(self.pose[:14] + self.board[:14], axis=0)
+        elif np.array_equal(self.situation, np.array([[12.0, 0.0]])):
+            target_point = np.vstack((self.pose[:14], self.board))
+            target_point = np.mean(target_point, axis=0)
             label = "🏫"
         else:
             target_point = np.array([0.15, 0.0, 0.2])
             label = "🔥"
 
+        target_point = Pixel2World(target_point , intrinsic)
+
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         # Normalize
         target_point = np.array([
             (target_point[2] / self.cam_depth) * 1,
             ((target_point[0] - 0.5 * self.cam_width) / self.cam_width) * 1,
-            ((target_point[1] - 0.5 * self.cam_height) / self.cam_height) * 0.5,
+            ((target_point[1] - 0.5 * self.cam_height) / self.cam_height) * 1,
         ])
 
         self.get_logger().info(f"{label}: {target_point}")
 
+        # create message
         msg = PoseStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'base_link'
         msg.pose.position = Point(x=target_point[0],
                                 y=-target_point[1],
-                                z=target_point[2])
-        msg.pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
+                                z=-target_point[2])
+        msg.pose.orientation = Quaternion(x=quat[0],
+                                      y=quat[1],
+                                      z=quat[2],
+                                      w=quat[3])
+        
         self.publisher_.publish(msg)
 
 def main(args=None):

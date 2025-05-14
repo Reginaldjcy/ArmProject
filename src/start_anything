@@ -2,6 +2,10 @@
 source install/setup.bash
 ros2 launch orbbec_camera dabai_dcl.py enable_colored_point_cloud:=true
 
+########## webcamera ###########
+
+ros2 launch webcam_everything usb_cam_launch.py 
+
 ######## github ###########
 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
 
@@ -10,9 +14,10 @@ git push https://Reginaldjcy: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@github.com
 ############## Piper ###################
 cd src/piper_ros2
 bash can_activate.sh can0 1000000
-ros2 run piper piper_single_ctrl --ros-args -p can_port:=can0 -p auto_enable:=false -p gripper_exist:=true -p gripper_val_mutiple:=2
-
 export PYTHONPATH=/home/reginald/miniconda3/envs/piper/lib/python3.10/site-packages:$PYTHONPATH
 source install/setup.bash
+ros2 launch piper start_single_piper_rviz.launch.py
+
 ros2 launch piper start_single_piper_pin.launch.py
+
 

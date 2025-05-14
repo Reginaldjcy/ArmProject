@@ -30,7 +30,9 @@ setup(
             'pkg_area = recognize_pkg.pkg_area:main',
             'pkg_lwh = recognize_pkg.pkg_lwh:main',
             'pkg_open3d = recognize_pkg.pkg_open3d:main',
-            'keypoints_hopenet = recognize_pkg.keypoints_hopenet:main'         
+            'keypoints_hopenet = recognize_pkg.keypoints_hopenet:main',
+            'click_point = recognize_pkg.click_point:main',
+            'webcam_save = recognize_pkg.webcam_save:main',    
         ],
     },
 )

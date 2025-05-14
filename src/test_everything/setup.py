@@ -26,7 +26,8 @@ setup(
             'show_point = test_everything.show_point:main',
             'show_point2 = test_everything.show_point2:main',
             'show_pose_brd = test_everything.show_pose_brd:main',
-            'show_preset_brd = test_everything.show_preset_brd:main'
+            'show_preset_brd = test_everything.show_preset_brd:main',
+            'show_jeff_brd = test_everything.show_jeff_brd:main'
 
         ],
     },
