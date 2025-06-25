@@ -60,6 +60,20 @@ class TestGetPlane(Node):
         if normal_pose is None or normal_brd is None:
             return
         
+        # 计算法向量与坐标轴夹角（单位：度）
+        def compute_angles(normal):
+            norm = np.linalg.norm(normal)
+            angle_x = np.arccos(normal[0] / norm) * 180 / np.pi
+            angle_y = np.arccos(normal[1] / norm) * 180 / np.pi
+            angle_z = np.arccos(normal[2] / norm) * 180 / np.pi
+            return angle_x, angle_y, angle_z
+
+        angles_pose = compute_angles(normal_pose)
+
+
+        # 打印结果
+        self.get_logger().info(f'[Pose Plane] 夹角 x: {angles_pose[0]:.2f}°, y: {angles_pose[1]:.2f}°, z: {angles_pose[2]:.2f}°')
+
         ### publish arrow
         pose_arrow = create_arrow_marker(point_pose, normal_pose)
 

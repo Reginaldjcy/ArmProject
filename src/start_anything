@@ -16,8 +16,21 @@ cd src/piper_ros2
 bash can_activate.sh can0 1000000
 export PYTHONPATH=/home/reginald/miniconda3/envs/piper/lib/python3.10/site-packages:$PYTHONPATH
 source install/setup.bash
-ros2 launch piper start_single_piper_rviz.launch.py
-
 ros2 launch piper start_single_piper_pin.launch.py
 
+ros2 launch piper start_single_piper_rviz.launch.py
+
+########################### frp #######################
+wget https://github.com/fatedier/frp/releases/download/v0.62.1/frp_0.62.1_linux_amd64.tar.gz
+tar -xvzf frp_0.62.1_linux_amd64.tar.gz
+cd frp_0.62.1_linux_amd64
+./frps -c ./frps.toml
+
+cd .frp_0.61.1_linux_amd64
+./frpc -c ./frpc.toml
+
+####### Cluster ############
+kubectl scale deployment workspace --replicas=1
+
+kubectl edit deployment workspace
 

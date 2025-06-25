@@ -26,14 +26,14 @@ class PosePublisher(Node):
         # Subscriptions
         self.create_subscription(TimeFloat, 'situation_choose', partial(self.generic_callback, data_type="situation"), 10)
         self.create_subscription(TimeFloat, "pose_1", partial(self.generic_callback, data_type="pose"), 10)
-        self.create_subscription(TimeFloat, "jeff_1", partial(self.generic_callback, data_type="board"), 10)
+        self.create_subscription(TimeFloat, "board_1", partial(self.generic_callback, data_type="board"), 10)
         self.create_subscription(Image, '/camera/color/image_raw', self.camera_callback, 10)
         # Publisher
         self.publisher_ = self.create_publisher(JointState, '/joint_states', 10)
 
         # Initialize data containers
         self.situation = None
-        self.situation = np.array([11.0, 0.0])
+        # self.situation = np.array([12.0, 0.0])
         self.pose = None
         self.board = None
         self.test_point = np.array([[29, 187, 1991],

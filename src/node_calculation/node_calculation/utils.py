@@ -66,11 +66,14 @@ def speaker_board_dist(color_image, relative_position, human_1, board_boundary, 
 
     ############################################################################
     #  boundary for board 
-    left_x_threshold = np.percentile(board_boundary[:, 0], percentile)  
-    right_x_threshold = np.percentile(board_boundary[:, 0], (100-percentile))  
+    # 按照 x 坐标升序排列
+    sorted_boundary = board_boundary[np.argsort(board_boundary[:, 0])]
 
-    left_board_3d = board_boundary[board_boundary[:, 0] <= left_x_threshold]
-    right_board_3d = board_boundary[board_boundary[:, 0] >= right_x_threshold]
+    # 提取最左边的两个点（最小 x）
+    left_board_3d = sorted_boundary[:2]
+
+    # 提取最右边的两个点（最大 x）
+    right_board_3d = sorted_boundary[-2:]
 
     ###########################################################################
     #  boundary for human

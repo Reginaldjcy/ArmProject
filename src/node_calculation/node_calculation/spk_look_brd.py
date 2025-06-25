@@ -22,7 +22,7 @@ class spk_look_brd(Node):
 
         # Subscription
         self.human_sub = Subscriber(self, TimeFloat, 'pose_1')
-        self.brd_sub = Subscriber(self, TimeFloat, 'board_1')
+        self.brd_sub = Subscriber(self, TimeFloat, 'jeff_1')
 
         # Synchronize two topic
         self.sync = ApproximateTimeSynchronizer(

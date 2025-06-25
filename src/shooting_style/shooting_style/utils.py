@@ -39,9 +39,11 @@ def flw_spk(pose, board):
     return target_point, pixel_point
 
 def spk_brd(pose, board):
-    pixel_point = np.mean(board, axis=0)
+    pixel_point = np.vstack((pose[0], board))
+    pixel_point = np.mean(pixel_point, axis=0)
     pixel_point = np.vstack([pixel_point, [0, 0, 0]])
     target_point = Pixel2World(pixel_point, intrinsic)
+    target_point[0][2] -= 0.5
 
     return target_point, pixel_point
 
@@ -81,41 +83,11 @@ def World2Robot(W_point):
         joint_5 = -0.3 + ((109.736 - angle_deg_y) / 44.705) * 1.05
 
     # Not test
-    elif 2.5 <= z < 3:
-        joint_1 = -0.7 + ((angle_deg_x - 56.058) / 71.509) * 1.4
-        joint_2 = 1.562
-        joint_3 = -1.235
-        joint_5 = -0.3 + ((109.736 - angle_deg_y) / 44.705) * 1.05
-
-    elif 3 <= z < 3.5:
-        joint_1 = -0.7 + ((angle_deg_x - 56.058) / 71.509) * 1.4
-        joint_2 = 1.833
-        joint_3 = -1.684
-        joint_5 = -0.3 + ((109.736 - angle_deg_y) / 44.705) * 1.05
-
-    elif 3.5 <= z:
-        joint_1 = -0.7 + ((angle_deg_x - 56.058) / 71.509) * 1.4
+    elif 2.5 <= z:
+        joint_1 = -0.64 + ((angle_deg_x - 60.058) / 71.509) * 0.8
         joint_2 = 2.105
         joint_3 = -1.828
-        joint_5 = -0.3 + ((109.736 - angle_deg_y) / 44.705) * 1.05
-
-    x, y, z = W_point[0]
-    norm = np.linalg.norm([x, y, z])
-    cos_theta_x = x / norm
-    angle_rad_x = np.arccos(cos_theta_x)   # 角度与 Y 轴之间的夹角
-    angle_deg_x = np.degrees(angle_rad_x)
-    print(f'x: {angle_deg_x}')
-
-    cos_theta_y = y / norm
-    angle_rad_y = np.arccos(cos_theta_y)   # 角度与 Y 轴之间的夹角
-    angle_deg_y = np.degrees(angle_rad_y)
-    print(f'y: {angle_deg_y}')
-
-    cos_theta_z = z / norm
-    angle_rad_z = np.arccos(cos_theta_z)   # 角度与 Y 轴之间的夹角
-    angle_deg_z = np.degrees(angle_rad_z)
-    print(f'z: {angle_deg_z}')
-
+        joint_5 = -0.4 + ((95.736 - angle_deg_y) / 20.705) * 0.322
 
     return joint_1, joint_2, joint_3, joint_5
 

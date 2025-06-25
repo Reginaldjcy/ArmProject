@@ -17,7 +17,7 @@ class brd_edge_dist(Node):
 
         # Subscription
         self.human_sub = Subscriber(self, TimeFloat, 'pose_1')
-        self.brd_sub = Subscriber(self, TimeFloat, 'board_1')
+        self.brd_sub = Subscriber(self, TimeFloat, 'jeff_1')
         self.rgb_sub = Subscriber(self, Image, '/camera/color/image_raw')
 
         # Synchronize two topic
