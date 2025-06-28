@@ -220,14 +220,14 @@ class C_PiperRosNode(Node):
         """
         factor = 57324.840764 #1000*180/3.14
         factor1 = 57.32484
-        self.get_logger().info(f"Received Joint States:")
-        self.get_logger().info(f"joint_0: {joint_data.position[0]}")
-        self.get_logger().info(f"joint_1: {joint_data.position[1]}")
-        self.get_logger().info(f"joint_2: {joint_data.position[2]}")
-        self.get_logger().info(f"joint_3: {joint_data.position[3]}")
-        self.get_logger().info(f"joint_4: {joint_data.position[4]}")
-        self.get_logger().info(f"joint_5: {joint_data.position[5]}")
-        self.get_logger().info(f"joint_6: {joint_data.position[6]}")
+        # self.get_logger().info(f"Received Joint States:")
+        # self.get_logger().info(f"joint_0: {joint_data.position[0]}")
+        # self.get_logger().info(f"joint_1: {joint_data.position[1]}")
+        # self.get_logger().info(f"joint_2: {joint_data.position[2]}")
+        # self.get_logger().info(f"joint_3: {joint_data.position[3]}")
+        # self.get_logger().info(f"joint_4: {joint_data.position[4]}")
+        # self.get_logger().info(f"joint_5: {joint_data.position[5]}")
+        # self.get_logger().info(f"joint_6: {joint_data.position[6]}")
         joint_0 = round(joint_data.position[0]*factor)
         joint_1 = round(joint_data.position[1]*factor)
         joint_2 = round(joint_data.position[2]*factor)
