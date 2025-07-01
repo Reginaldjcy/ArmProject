@@ -217,3 +217,23 @@ def create_arrow_marker(start_point, normal_vector, frame_id="camera_link", mark
     marker.color = color
 
     return marker
+
+def pixel_to_robot_frame(point, diff):
+    """
+    Convert pixel coordinates to robot frame coordinates.
+    
+    Args:
+        point (np.array): Pixel coordinates in the form [x, y, z].
+        diff (np.array): Difference vector to be added to the pixel coordinates.
+        
+    Returns:
+        np.array: Robot frame coordinates.
+    """
+    # Ensure point and diff are numpy arrays
+    point = np.array(point[0], dtype=float)
+    diff = np.array(diff, dtype=float)
+
+    # Convert pixel coordinates to robot frame
+    robot_frame = np.array([point[0] - diff[0], point[1] + diff[1], point[2] + diff[2]])
+
+    return robot_frame

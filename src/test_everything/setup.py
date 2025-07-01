@@ -29,8 +29,8 @@ setup(
             'show_pose_brd = test_everything.show_pose_brd:main',
             'show_preset_brd = test_everything.show_preset_brd:main',
             'show_jeff_brd = test_everything.show_jeff_brd:main',
-            'face_pose = test_everything.face_pose:main'
-            
+            'face_pose = test_everything.face_pose:main',
+            'cam2arm = test_everything.cam2arm:main',
         ],
     },
 )

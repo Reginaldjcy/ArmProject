@@ -34,3 +34,5 @@ kubectl scale deployment workspace --replicas=1
 
 kubectl edit deployment workspace
 
+########### Distance ###########
+长4高5

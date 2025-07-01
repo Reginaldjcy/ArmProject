@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 
 from msg_interfaces.msg import TimeFloat
+from std_msgs.msg import Float32MultiArray
 
 import numpy as np
 from .utils import *
@@ -21,17 +22,18 @@ class FacePose(Node):
 
         # publisher
         self.publisher_ = self.create_publisher(TimeFloat, 'face_pose', 10)
+        self.marker_pub = self.create_publisher(Marker, 'visualization_marker', 10)
 
         # initial
         self.face_pose = None
         self.face_point = None  
 
     def face_pose_callback(self, msg):
-          self.face_pose = np.array(msg.matrix.data).flatten()
-          self.sub_result()
+        self.face_pose = np.array(msg.matrix.data).flatten()
+        self.sub_result()
     def face_point_callback(self, msg):
-            self.face_point = np.array(msg.matrix.data).reshape(-1, 3) 
-            self.sub_result()
+        self.face_point = np.array(msg.matrix.data).reshape(-1, 3) 
+        self.sub_result()
 
     def sub_result(self):
         if self.face_pose is None or self.face_point is None:
@@ -45,7 +47,23 @@ class FacePose(Node):
         # pose data
         face_dirc = self.face_pose[-3:]
 
-        face_pose = np.concatenate([face_center, face_dirc], axis=0)
+        # 确保方向向量是单位化的
+        face_dirc_norm = face_dirc / np.linalg.norm(face_dirc)
+
+        # 计算沿着face_dirc方向延伸0.5m的点
+        target_point = face_center + 0.5 * face_dirc_norm
+        target_point = np.concatenate((target_point, [0, 0, 0]))  # 添加齐次坐标
+
+        # 发布target_point
+        target_msg = TimeFloat()
+        target_msg.stamp = self.get_clock().now().to_msg()
+        target_msg.matrix.data = target_point.tolist()
+        self.publisher_.publish(target_msg)
+
+        #  # 在Rviz中可视化target_point
+        marker = create_point_marker(target_point)
+        self.marker_pub.publish(marker)
+
 
 def main(args=None):
     rclpy.init(args=args)

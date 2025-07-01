@@ -87,28 +87,6 @@ class PosePublisher(Node):
         target_point = Pixel2World(target_point , intrinsic)
 
 
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         # Normalize
         target_point = np.array([
             (target_point[2] / self.cam_depth) * 1,
