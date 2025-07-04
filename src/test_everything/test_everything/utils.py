@@ -9,20 +9,20 @@ from mpl_toolkits.mplot3d import Axes3D
 ##############################################
 ########### rviz2 orbbec pointcloud ##########
 #
-#
+#                z
 #                #
 #                #     #
 #                #    #  
-#                #   #   point.x
+#                #   #   x
 #                #  #
 #                # #                    
 #         ########
-#           point.y (middle)
+#     y 
 #
 #
 ############################################
 # convert pixel coordinate to real world x,y
-def Pixel2World(keypoints, intrinsic):
+def Pixel2Rviz(keypoints, intrinsic):
     fx = intrinsic[0, 0]
     fy = intrinsic[1, 1]
     cx = intrinsic[0, 2]

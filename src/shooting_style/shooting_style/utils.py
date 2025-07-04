@@ -5,7 +5,7 @@ intrinsic = np.array([[688.4984130859375, 0.0, 639.0274047851562],
                       [0.0, 0.0, 1.0]])
 
 
-def Pixel2World(keypoints, intrinsic):
+def Pixel2Rviz(keypoints, intrinsic):
     fx = intrinsic[0, 0]
     fy = intrinsic[1, 1]
     cx = intrinsic[0, 2]
@@ -34,7 +34,7 @@ def Pixel2World(keypoints, intrinsic):
 def flw_spk(pose, board):
     pixel_point = pose[0]
     pixel_point = np.vstack([pixel_point, [0, 0, 0]])
-    target_point = Pixel2World(pixel_point, intrinsic)
+    target_point = Pixel2Rviz(pixel_point, intrinsic)
 
     return target_point, pixel_point
 
@@ -42,14 +42,14 @@ def spk_brd(pose, board):
     pixel_point = np.vstack((pose[0], board))
     pixel_point = np.mean(pixel_point, axis=0)
     pixel_point = np.vstack([pixel_point, [0, 0, 0]])
-    target_point = Pixel2World(pixel_point, intrinsic)
+    target_point = Pixel2Rviz(pixel_point, intrinsic)
     target_point[0][2] -= 0.5
 
     return target_point, pixel_point
 
 def center(point):
     pixel_point = np.vstack([point, [0, 0, 0]])
-    target_point = Pixel2World(pixel_point, intrinsic)
+    target_point = Pixel2Rviz(pixel_point, intrinsic)
 
     return target_point, pixel_point
 

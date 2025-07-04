@@ -26,7 +26,7 @@ class face2arm(Node):
         
 
         # Convert dot to realworld coordinates
-        dot_wrd = Pixel2World(dot, intrinsic)
+        dot_wrd = Pixel2Rviz(dot, intrinsic)
         print("dot_wrd:", dot_wrd)  
 
         # From pixel to robot frame

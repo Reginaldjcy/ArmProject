@@ -43,8 +43,8 @@ class TestGetPlane(Node):
         pose_pixel = pose_pixel[[11,12,24,23]]
 
         # 拟合平面
-        pose_wrd= Pixel2World(pose_pixel , intrinsic)
-        brd_wrd = Pixel2World(brd_pixel , intrinsic)
+        pose_wrd= Pixel2Rviz(pose_pixel , intrinsic)
+        brd_wrd = Pixel2Rviz(brd_pixel , intrinsic)
         plane_fitter_1 = PlaneFitter(pose_wrd)
         point_pose, normal_pose = plane_fitter_1.fit_plane()
         plane_fitter_2 = PlaneFitter(brd_wrd)

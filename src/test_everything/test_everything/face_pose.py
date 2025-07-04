@@ -4,6 +4,7 @@ from rclpy.node import Node
 from msg_interfaces.msg import TimeFloat
 from std_msgs.msg import Float32MultiArray
 
+from scipy.spatial.transform import Rotation as R
 import numpy as np
 from .utils import *
 
@@ -41,27 +42,36 @@ class FacePose(Node):
         # looking for face center point
         part_points = [0,1,2,3,4,5,6,7,8,9,10]
         face_point = self.face_point[part_points]
-        face_point= Pixel2World(face_point , intrinsic)
+        face_point= Pixel2Rviz(face_point , intrinsic)
         face_center = np.average(face_point, axis=0)
 
         # pose data
-        face_dirc = self.face_pose[-3:]
+        x, y, z, yaw, pitch, roll = self.face_pose
+        rot = R.from_euler('zyx', [pitch, yaw, roll], degrees=True)
+        correction = R.from_euler('x', -90, degrees=True)
+        rot = rot * correction
+        rotation_matrix = rot.as_matrix()
+        normal_vector = rotation_matrix[:, 2]
 
-        # 确保方向向量是单位化的
-        face_dirc_norm = face_dirc / np.linalg.norm(face_dirc)
 
         # 计算沿着face_dirc方向延伸0.5m的点
-        target_point = face_center + 0.5 * face_dirc_norm
-        target_point = np.concatenate((target_point, [0, 0, 0]))  # 添加齐次坐标
+        target_point = face_center + 1 * normal_vector
+        target_point = np.array((target_point, [0, 0, 0]))  # 添加齐次坐标
 
         # 发布target_point
         target_msg = TimeFloat()
-        target_msg.stamp = self.get_clock().now().to_msg()
-        target_msg.matrix.data = target_point.tolist()
+        target_msg.header = Header()
+        target_msg.header.stamp = self.get_clock().now().to_msg()
+        target_msg.header.frame_id = "base_frame"
+
+        target_msg.matrix = Float32MultiArray()
+        target_msg.matrix.data = target_point.flatten().tolist()
+
         self.publisher_.publish(target_msg)
 
         #  # 在Rviz中可视化target_point
-        marker = create_point_marker(target_point)
+        target_pub_points = [Point(x=float(p[0]), y=float(p[1]), z=float(p[2])) for p in target_point]
+        marker = create_point_marker(target_pub_points)
         self.marker_pub.publish(marker)
 
 

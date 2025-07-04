@@ -78,7 +78,7 @@ class PubArea(Node):
         ####################
         #### world data ####
         integer_depth = get_depth(integer_points, depth_image, color_image)
-        integer_world = Pixel2World(integer_depth, intrinsic)
+        integer_world = Pixel2Rviz(integer_depth, intrinsic)
 
         # 过滤掉 z==0 的点
         integer_world = integer_world[integer_world[:, 2] != 0]
@@ -188,7 +188,7 @@ if __name__ == '__main__':
 #             cv2.drawChessboardCorners(color_image, self.chessboard_size, corners, ret)
 #             corners = corners.reshape(-1, 2)
 #             corners = get_depth(corners, depth_image, color_image)
-#             matrix1 = Pixel2World(corners , self.camera_matrix)
+#             matrix1 = Pixel2Rviz(corners , self.camera_matrix)
 
 #             # marker = create_plane_marker(self, points)
 #             # self.marker_pub.publish(marker)

@@ -7,7 +7,7 @@ from visualization_msgs.msg import Marker
 from geometry_msgs.msg import Point
 
 import numpy as np
-from .utils import PlaneFitter, compute_plane_vertices, Pixel2World, project_points_to_plane
+from .utils import PlaneFitter, compute_plane_vertices, Pixel2Rviz, project_points_to_plane
 import pandas as pd
 import atexit
 
@@ -70,8 +70,8 @@ class TestGetPlane(Node):
         matrix2 = flat_data[m1_rows * m1_cols:].reshape(m2_rows, m2_cols)
 
         # 拟合平面
-        self.matrix1 = Pixel2World(matrix1 , intrinsic)
-        self.matrix2 = Pixel2World(matrix2 , intrinsic)
+        self.matrix1 = Pixel2Rviz(matrix1 , intrinsic)
+        self.matrix2 = Pixel2Rviz(matrix2 , intrinsic)
         plane_fitter_1 = PlaneFitter(self.matrix1)
         self.point_1, self.normal_1 = plane_fitter_1.fit_plane()
         plane_fitter_2 = PlaneFitter(self.matrix2)

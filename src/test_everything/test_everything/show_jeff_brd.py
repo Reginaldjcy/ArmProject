@@ -28,7 +28,7 @@ class TestGetPoint(Node):
     def subscription_callback(self, msg):
         # Get data
         pose_1 = np.array(msg.matrix.data).reshape(-1,3)
-        pose_1 = Pixel2World(pose_1, intrinsic)
+        pose_1 = Pixel2Rviz(pose_1, intrinsic)
 
         self.points = pose_1
         self.get_logger().info(f"publish {self.points}")

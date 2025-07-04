@@ -8,7 +8,7 @@ from geometry_msgs.msg import Point
 from std_msgs.msg import Bool
 
 import numpy as np
-from .utils import PlaneFitter, compute_plane_vertices, Pixel2World, ray_intersects_plane
+from .utils import PlaneFitter, compute_plane_vertices, Pixel2Rviz, ray_intersects_plane
 import pandas as pd
 import atexit
 
@@ -57,8 +57,8 @@ class spk_look_brd(Node):
         pose_1 = pose_1[part_points]
 
         # Get Normal vector
-        pose_rw = Pixel2World(pose_1, intrinsic)
-        self.board_rw = Pixel2World(board_1, intrinsic)
+        pose_rw = Pixel2Rviz(pose_1, intrinsic)
+        self.board_rw = Pixel2Rviz(board_1, intrinsic)
 
         ### for pose
         pose_instance = PlaneFitter(pose_rw)

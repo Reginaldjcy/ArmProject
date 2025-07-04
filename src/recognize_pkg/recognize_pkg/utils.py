@@ -56,7 +56,7 @@ def get_depth(point_2d, depth_data, img):
 #
 ############################################
 # convert pixel coordinate to real world x,y
-def Pixel2World(keypoints, intrinsic):
+def Pixel2Rviz(keypoints, intrinsic):
     fx = intrinsic[0, 0]
     fy = intrinsic[1, 1]
     cx = intrinsic[0, 2]

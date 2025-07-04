@@ -9,7 +9,7 @@ from std_msgs.msg import Header
 
 from scipy.spatial.transform import Rotation as R
 import numpy as np
-from .utils import Pixel2World
+from .utils import Pixel2Rviz
 
 intrinsic = np.array([[688.4984130859375, 0.0, 639.0274047851562],
                       [0.0, 688.466552734375, 355.8525390625],
@@ -33,7 +33,7 @@ class ArrowPublisher(Node):
 
         pseu_point = np.array([[x, y, z],
                                [0, 0, 0]])
-        pseu_list = Pixel2World(pseu_point, intrinsic)
+        pseu_list = Pixel2Rviz(pseu_point, intrinsic)
         x, y, z = pseu_list[0]
 
         # 将欧拉角（角度制）转换为四元数 'xyz', [roll, pitch, yaw]

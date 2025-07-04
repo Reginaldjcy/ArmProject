@@ -52,7 +52,7 @@ class spk_look_brd(Node):
         x, y, z, yaw, pitch, roll = pose_msg.matrix.data
         pseu_point = np.array([[x, y, z],
                                [0, 0, 0]])
-        pseu_list = Pixel2World(pseu_point, intrinsic)
+        pseu_list = Pixel2Rviz(pseu_point, intrinsic)
         x, y, z = pseu_list[0]
         self.pose_point = np.array([x, y, z])
 
@@ -71,7 +71,7 @@ class spk_look_brd(Node):
         
         # === 读取 board 点云并拟合平面 ===
         board_1 = np.array(board_msg.matrix.data).reshape(-1, 3)
-        self.board_rw = Pixel2World(board_1, intrinsic)
+        self.board_rw = Pixel2Rviz(board_1, intrinsic)
 
         board_instance = PlaneFitter(self.board_rw)
         self.board_point, self.board_normal = board_instance.fit_plane()

@@ -23,7 +23,7 @@ intrinsic = np.array([[688.4984130859375, 0.0, 639.0274047851562],
 
 
 aim_1 = np.array([540, 248, 2428])
-aim_1 = Pixel2World(aim_1, intrinsic)
+aim_1 = Pixel2Rviz(aim_1, intrinsic)
 
 
 class PosePublisher(Node):
@@ -84,7 +84,7 @@ class PosePublisher(Node):
             target_point = np.array([0.15, 0.0, 0.2])
             label = "🔥"
 
-        target_point = Pixel2World(target_point , intrinsic)
+        target_point = Pixel2Rviz(target_point , intrinsic)
 
 
         # Normalize

@@ -153,7 +153,7 @@ def speaker_board_dist(color_image, relative_position, human_1, board_boundary, 
 #
 ############################################
 # convert pixel coordinate to real world x,y
-def Pixel2World(keypoints, intrinsic):
+def Pixel2Rviz(keypoints, intrinsic):
     fx = intrinsic[0, 0]
     fy = intrinsic[1, 1]
     cx = intrinsic[0, 2]

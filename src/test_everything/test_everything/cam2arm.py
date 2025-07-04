@@ -34,7 +34,7 @@ class Cam2Arm(Node):
         dot = dot[0]
 
         # Convert dot to realworld coordinates
-        dot_wrd = Pixel2World(dot, intrinsic)
+        dot_wrd = Pixel2Rviz(dot, intrinsic)
         print("dot_wrd:", dot_wrd)  
 
         # From pixel to robot frame
