@@ -68,7 +68,7 @@ class PlaneFitter:
         self.plane_normal /= np.linalg.norm(self.plane_normal)
 
         # detect the start point of normal vector
-        start_point = self.points[0] 
+        start_point = 0.5 * (self.points[0] + self.points[1])
         
         return start_point, self.plane_normal
 
@@ -213,7 +213,7 @@ def create_arrow_marker(start_point, normal_vector, frame_id="camera_link", mark
 
     # 设置颜色（默认绿色）
     if color is None:
-        color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=1.0)  # 绿色
+        color = ColorRGBA(r=0.0, g=0.0, b=1.0, a=1.0)  # blue
     marker.color = color
 
     return marker
@@ -237,3 +237,41 @@ def pixel_to_robot_frame(point, diff):
     robot_frame = np.array([point[0] - diff[0], point[1] + diff[1], point[2] + diff[2]])
 
     return robot_frame
+
+import numpy as np
+
+def how2shoot(face_center, normal_vector, face_dist, robot_position, robot_radius):
+
+    # Step 1: Try 0.5m forward along normal
+    target_point = face_center + face_dist * normal_vector
+    target_to_robot = np.linalg.norm(target_point - robot_position)
+
+    if target_to_robot <= robot_radius:
+        print('With in robot sphere')
+        return target_point
+    else:
+        # Step 2: Ray from face_center toward robot_position, find intersection with sphere
+        face_to_robot = np.linalg.norm(face_center - robot_position)
+        if face_to_robot <= face_dist + robot_radius:
+            print('In face sphere')
+            direction_1 = target_point - robot_position
+            unit_dir_1 = direction_1 / np.linalg.norm(direction_1)
+            intersection_1 = robot_position + robot_radius * unit_dir_1
+            return intersection_1
+        else:
+            print('Very far away')
+            # Step 3: Find intersection with sphere
+            direction_2 = face_center - robot_position
+            unit_dir_2 = direction_2 / np.linalg.norm(direction_2)
+            intersection_2 = robot_position + robot_radius * unit_dir_2
+            return intersection_2
+
+def get_depth(point_2d, depth_data, img):
+    point_3d = []
+    for x, y in point_2d:
+        if x < img.shape[1] and y < img.shape[0] :
+            z = depth_data[int(y), int(x)]            
+        else:
+            z = 0
+        point_3d.append([x, y, z])
+    return np.array(point_3d, dtype=np.float32)

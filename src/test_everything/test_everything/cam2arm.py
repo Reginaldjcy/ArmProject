@@ -20,7 +20,7 @@ class Cam2Arm(Node):
         super().__init__("cam2arm")  # node name
 
         # Subscription
-        self.target_sub = self.create_subscription(TimeFloat, 'face_pose', self.rgb_callback, 10)
+        self.target_sub = self.create_subscription(TimeFloat, 'robot_target_msg', self.rgb_callback, 10)
 
         # Publisher
         self.arm_pub = self.create_publisher(PoseStamped, 'piper_control/pose', 10)
@@ -29,17 +29,10 @@ class Cam2Arm(Node):
         # Preset dot and diff
         diff = np.array([0.55, 0.067, 0.5])
 
-
         dot = np.array(msg.matrix.data).reshape(-1,3)
-        dot = dot[0]
-
-        # Convert dot to realworld coordinates
-        dot_wrd = Pixel2Rviz(dot, intrinsic)
-        print("dot_wrd:", dot_wrd)  
 
         # From pixel to robot frame
-        robot_frame = pixel_to_robot_frame(dot_wrd, diff)
-        print("robot_frame:", robot_frame)
+        robot_frame = pixel_to_robot_frame(dot, diff)
 
         # ✅ 构建并发布 PoseStamped，仅包含位置，姿态为默认单位四元数
         msg = PoseStamped()

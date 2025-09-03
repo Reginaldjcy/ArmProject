@@ -41,8 +41,8 @@ class TestGetPoint(Node):
 
         self.points = pose_1[part_points]
 
-        self.points = np.array([[0, 0, 0],
-                                [1, 0, 0]])
+        # self.points = np.array([[0, 0, 1],
+        #                         [0, 0, 0]])
 
         self.get_logger().info(f"publish {self.points}")
         self.points = [Point(x=float(p[0]), y=float(p[1]), z=float(p[2])) for p in self.points]
@@ -52,7 +52,7 @@ class TestGetPoint(Node):
 
     def publisher_marker(self):
         if self.points is not None:
-            marker = create_point_marker(self.points, color=(1.0, 0.0, 0.0, 1.0))
+            marker = create_point_marker(self.points, color=(1.0, 0.0, 0.0, 1.0), scale=0.01)
             self.publisher_.publish(marker)
 
               

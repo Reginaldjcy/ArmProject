@@ -14,7 +14,7 @@ def Pixel2Rviz(keypoints, intrinsic):
     keypoints = np.array(keypoints)
     pts = []
 
-    for point in keypoints:
+    for point in keypoints: # While True:
         x, y, z = float(point[0]), float(point[1]), float(point[2])  # 确保数据为浮点数
 
         if z == 0:  # 处理深度为 0 的情况
@@ -29,7 +29,7 @@ def Pixel2Rviz(keypoints, intrinsic):
         # pts.append([dep_x, dep_y, dep_z])
         pts.append([dep_x, dep_y, dep_z])
 
-    return np.array(pts)
+        return np.array(pts)
 
 def flw_spk(pose, board):
     pixel_point = pose[0]
@@ -107,3 +107,23 @@ def World2Robot(W_point):
 # angle_rad_z = np.arccos(cos_theta_z)   # 角度与 Y 轴之间的夹角
 # angle_deg_z = np.degrees(angle_rad_z)
 # print(f'z: {angle_deg_z}')
+
+def pixel_to_robot_frame(point, diff):
+    """
+    Convert pixel coordinates to robot frame coordinates.
+    
+    Args:
+        point (np.array): Pixel coordinates in the form [x, y, z].
+        diff (np.array): Difference vector to be added to the pixel coordinates.
+        
+    Returns:
+        np.array: Robot frame coordinates.
+    """
+    # Ensure point and diff are numpy arrays
+    point = np.array(point[0], dtype=float)
+    diff = np.array(diff, dtype=float)
+
+    # Convert pixel coordinates to robot frame
+    robot_frame = np.array([point[0] - diff[0], point[1] + diff[1], point[2] + diff[2]])
+
+    return robot_frame

@@ -29,15 +29,14 @@ class ArrowPublisher(Node):
 
 
     def subscription_callback(self, msg):
-        x, y, z, yaw, pitch, roll = msg.matrix.data
-
+        x, y, z, roll, pitch, yaw = msg.matrix.data    # rotation to rivz2
         pseu_point = np.array([[x, y, z],
                                [0, 0, 0]])
         pseu_list = Pixel2Rviz(pseu_point, intrinsic)
         x, y, z = pseu_list[0]
 
         # 将欧拉角（角度制）转换为四元数 'xyz', [roll, pitch, yaw]
-        rot = R.from_euler('xyz', [roll, -pitch, -yaw+180], degrees=True)
+        rot = R.from_euler('xyz', [roll, -pitch, -yaw+180], degrees=True)    #roll, -pitch, -yaw+180
         quat = rot.as_quat()  # 返回 [x, y, z, w]
 
         # 构建 Marker 消息

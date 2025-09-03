@@ -114,21 +114,36 @@ class Movenet(Node):
 
         ############# whiteboard mask #####################
         shapes = solve_mask_quad(whiteboard_full_mask, self.number)
-        shapes = np.array(shapes[0]).squeeze() 
-        shapes = sort_pts_counterclockwise(shapes)
-        
-        cv2.drawContours(frame_out, [shapes], -1, (0, 0, 255), 2)
-        # shrink
-        shapes = shrink_rectangle(shapes, shrink_amount=10)
-        cv2.drawContours(frame_out, [shapes], -1, (0, 255, 255), 2)
+        if shapes is None or len(shapes) == 0:
+            self.get_logger().info('No whiteboard detected')
+            return
+        else:
+            shapes = np.array(shapes[0]).squeeze() 
+            shapes = sort_pts_counterclockwise(shapes)
+            
+            cv2.drawContours(frame_out, [shapes], -1, (0, 0, 255), 2)
+            
+            # shrink
+            if len(shapes) < 4:
+                self.get_logger().warn(f"Expected 4 points, but got {len(shapes)}. Skipping.")
+                return
+            shapes = shrink_rectangle(shapes, shrink_amount=10)
+            cv2.drawContours(frame_out, [shapes], -1, (0, 255, 255), 2)
 
-        self.matrix1 = get_depth(shapes, depth_image, color_image)
-        
-        # Display (non-blocking)
-        cv2.imshow('Camera', frame_out)
-        cv2.waitKey(1)  
+            for x, y in shapes:
+                if 0<y<720 and 0<x<1280:
+                    continue
+                else:
+                    self.get_logger().warn(f"Point out of bounds: ({x}, {y})")
+                    return
+            self.matrix1 = get_depth(shapes, depth_image, color_image)
+            
+            # Display (non-blocking)
+            cv2.imshow('Camera', frame_out)
+            cv2.waitKey(1)  
+            self.get_logger().info(f"Whiteboard detected")
 
-        self.publisher_callback()
+            self.publisher_callback()
 
     def publisher_callback(self):
         """Publish the human keypoints data."""

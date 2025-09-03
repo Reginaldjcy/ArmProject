@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'arm_pose = test_everything.arm_pose:main',
+            'cam2arm = test_everything.cam2arm:main',
             'keypoints_steady = test_everything.keypoints_steady:main',
             'show_boardmulti = test_everything.show_boardmulti:main',
             'show_hopenet = test_everything.show_hopenet:main',
@@ -29,7 +30,8 @@ setup(
             'show_pose_brd = test_everything.show_pose_brd:main',
             'show_preset_brd = test_everything.show_preset_brd:main',
             'show_jeff_brd = test_everything.show_jeff_brd:main',
-            'face_pose = test_everything.face_pose:main'
+            'face_pose = test_everything.face_pose:main',
+            'chest_pose = test_everything.chest_pose:main',
             
         ],
     },

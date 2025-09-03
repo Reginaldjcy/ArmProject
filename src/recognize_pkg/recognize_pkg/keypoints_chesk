@@ -33,7 +33,7 @@ class PoseKeypoints(Node):
         # Publisher
         self.publisher_ = self.create_publisher(
             TimeFloat,
-            'pose_1',
+            'chest_1',
             10
         )
 

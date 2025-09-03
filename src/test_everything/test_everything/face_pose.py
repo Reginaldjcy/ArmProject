@@ -11,6 +11,9 @@ from .utils import *
 intrinsic = np.array([[688.4984130859375, 0.0, 639.0274047851562],
                       [0.0, 688.466552734375, 355.8525390625],
                       [0.0, 0.0, 1.0]])
+robot_position = np.array([0.5, 0.0, -0.5])
+robot_radius = 0.5  # 机器人半径
+face_dist = 0.5  # 人脸距离机器人0.5m
 
 
 class FacePose(Node):
@@ -22,8 +25,11 @@ class FacePose(Node):
         self.face_point_sub = self.create_subscription(TimeFloat, 'pose_1', self.face_point_callback, 10)
 
         # publisher
-        self.publisher_ = self.create_publisher(TimeFloat, 'face_pose', 10)
-        self.marker_pub = self.create_publisher(Marker, 'visualization_marker', 10)
+        self.target_msg = self.create_publisher(TimeFloat, 'robot_target_msg', 10)
+        self.target_vis = self.create_publisher(Marker, 'robot_target_vis', 10)
+        self.normal_pub = self.create_publisher(Marker, 'normal_marker', 10)
+        self.robot_pub = self.create_publisher(Marker, 'robot_position', 10)
+
 
         # initial
         self.face_pose = None
@@ -46,18 +52,20 @@ class FacePose(Node):
         face_center = np.average(face_point, axis=0)
 
         # pose data
-        x, y, z, yaw, pitch, roll = self.face_pose
-        rot = R.from_euler('zyx', [pitch, yaw, roll], degrees=True)
-        correction = R.from_euler('x', -90, degrees=True)
-        rot = rot * correction
+        x, y, z, roll, pitch, yaw = self.face_pose
+        pseu_point = np.array([[x, y, z],
+                               [0, 0, 0]])
+        pseu_list = Pixel2Rviz(pseu_point, intrinsic)
+        x, y, z = pseu_list[0]
+        rot = R.from_euler('xyz', [roll, 90-pitch, 180-yaw], degrees=True) #roll, 90-pitch, 180-yaw
         rotation_matrix = rot.as_matrix()
         normal_vector = rotation_matrix[:, 2]
-
+        norm_marker = create_arrow_marker([x, y, z], normal_vector)
+        self.normal_pub.publish(norm_marker)  # blue
 
         # 计算沿着face_dirc方向延伸0.5m的点
-        target_point = face_center + 1 * normal_vector
-        target_point = np.array((target_point, [0, 0, 0]))  # 添加齐次坐标
-
+        target_point = how2shoot(face_center, normal_vector, face_dist, robot_position, robot_radius)
+        
         # 发布target_point
         target_msg = TimeFloat()
         target_msg.header = Header()
@@ -67,12 +75,17 @@ class FacePose(Node):
         target_msg.matrix = Float32MultiArray()
         target_msg.matrix.data = target_point.flatten().tolist()
 
-        self.publisher_.publish(target_msg)
+        self.target_msg.publish(target_msg)
 
         #  # 在Rviz中可视化target_point
-        target_pub_points = [Point(x=float(p[0]), y=float(p[1]), z=float(p[2])) for p in target_point]
-        marker = create_point_marker(target_pub_points)
-        self.marker_pub.publish(marker)
+        target_pub_points = Point(x=float(target_point[0]), y=float(target_point[1]), z=float(target_point[2]))
+        marker = create_point_marker([target_pub_points], scale=0.08) # green
+        self.target_vis.publish(marker)
+
+        # show robot position
+        rob_points = Point(x=float(robot_position[0]), y=float(robot_position[1]), z=float(robot_position[2]))
+        rob_marker = create_point_marker([rob_points], scale=0.1, color=(1.0, 0.0, 0.0, 1.0))   # RED
+        self.robot_pub.publish(rob_marker)
 
 
 def main(args=None):

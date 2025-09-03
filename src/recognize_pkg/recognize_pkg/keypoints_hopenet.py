@@ -170,7 +170,7 @@ class Movenet(Node):
             z = get_depth(pseu_point, depth_image, frame)
             z = z[0]
 
-            self.pub_data = np.concatenate((z, np.array([yaw, pitch, roll])))
+            self.pub_data = np.concatenate((z, np.array([roll, pitch, yaw])))                     #((z, np.array([yaw, pitch, roll])))
 
             # cv2.circle(frame, [int(tdx), int(tdy)], radius=30, color=(0, 255, 0), thickness=-1)
             # print(f"{[int(tdx), int(tdy)]}")
@@ -179,7 +179,7 @@ class Movenet(Node):
             self.publisher_callback()
     
     def publisher_callback(self):
-        if self.pub_data is not None:
+        if self.pub_data is not None: 
             msg = TimeFloat()
 
             # Header
