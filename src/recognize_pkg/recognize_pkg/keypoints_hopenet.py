@@ -125,7 +125,7 @@ class Movenet(Node):
                 
                 # Get coordinates
                 x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
-
+     
                 # conv to square
                 width = x2-x1
                 height = y2-y1

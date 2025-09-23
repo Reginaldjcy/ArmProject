@@ -16,6 +16,7 @@ intrinsic = np.array([[688.4984130859375, 0.0, 639.0274047851562],
                       [0.0, 0.0, 1.0]])
 
 
+
 class ArrowPublisher(Node):
     def __init__(self):
         super().__init__('arrow_publisher')
@@ -35,9 +36,15 @@ class ArrowPublisher(Node):
         pseu_list = Pixel2Rviz(pseu_point, intrinsic)
         x, y, z = pseu_list[0]
 
+        ########
+        # roll = 0.0
+        # pitch = 0.0  # up and down
+        # yaw = 0.0  # left and right
+
         # 将欧拉角（角度制）转换为四元数 'xyz', [roll, pitch, yaw]
         rot = R.from_euler('xyz', [roll, -pitch, -yaw+180], degrees=True)    #roll, -pitch, -yaw+180
-        quat = rot.as_quat()  # 返回 [x, y, z, w]
+        quat = rot.as_quat()  # 返回 [x, y, z, w]        
+        self.get_logger().info(f"Received angles: UD={pitch}, LR={yaw}")
 
         # 构建 Marker 消息
         marker = Marker()

@@ -33,6 +33,7 @@ setup(
             'keypoints_hopenet = recognize_pkg.keypoints_hopenet:main',
             'click_point = recognize_pkg.click_point:main',
             'webcam_save = recognize_pkg.webcam_save:main',    
+            'icp = recognize_pkg.icp:main',
         ],
     },
 )
