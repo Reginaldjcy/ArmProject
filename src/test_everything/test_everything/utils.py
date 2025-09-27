@@ -50,6 +50,30 @@ def Pixel2Rviz(keypoints, intrinsic):
 
 
 
+def Pixel2Optical(keypoints, intrinsic):
+    fx = intrinsic[0, 0]
+    fy = intrinsic[1, 1]
+    cx = intrinsic[0, 2]
+    cy = intrinsic[1, 2]
+
+    keypoints = np.array(keypoints)
+    pts = []
+
+    for point in keypoints:
+        x, y, z = float(point[0]), float(point[1]), float(point[2])  # 确保数据为浮点数
+
+        if z == 0:  # 处理深度为 0 的情况
+            pts.append([0.0, 0.0, 0.0])
+            continue
+
+        dep_x = ((x - cx) * -z / fx) / 1000.0       
+        dep_y = ((y - cy) * -z / fy) / 1000.0         
+        dep_z = -z / 1000.0
+
+        pts.append([-dep_x, -dep_y, -dep_z])
+
+    return np.array(pts)
+
 
 # SVD calculate the plane
 # calculate the fit plane
@@ -121,7 +145,7 @@ from std_msgs.msg import ColorRGBA, Header
 from visualization_msgs.msg import Marker
 from builtin_interfaces.msg import Duration
 
-def create_point_marker(points, frame_id="camera_link", ns="point_cloud", marker_id=0, 
+def create_point_marker(points, frame_id="camera_color_optical_frame", ns="point_cloud", marker_id=0, 
                                scale=0.01, color=(0.0, 1.0, 0.0, 1.0), lifetime_sec=0):
     
 
@@ -147,7 +171,7 @@ def create_point_marker(points, frame_id="camera_link", ns="point_cloud", marker
 
     return marker
 
-def create_plane_marker(corners, frame_id="camera_link", ) -> Marker:
+def create_plane_marker(corners, frame_id="camera_color_optical_frame") -> Marker:
 
 
     # 检查类型，如果是 list of Point，先转 numpy

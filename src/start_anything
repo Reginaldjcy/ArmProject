@@ -1,5 +1,4 @@
 ###### Orbbec ############
-source install/setup.bash
 ros2 launch orbbec_camera dabai_dcl.py enable_colored_point_cloud:=true
 
 ########## webcamera ###########

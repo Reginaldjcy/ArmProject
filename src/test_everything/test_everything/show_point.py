@@ -29,7 +29,7 @@ class TestGetPoint(Node):
     def subscription_callback(self, msg):
         # Get data
         pose_1 = np.array(msg.matrix.data).reshape(-1,3)
-        pose_1 = Pixel2Rviz(pose_1, intrinsic)
+        pose_1 = Pixel2Optical(pose_1, intrinsic)
 
         # select points
         if self.keypoint_part == 'face': 
@@ -39,12 +39,12 @@ class TestGetPoint(Node):
         elif self.keypoint_part == 'hand':
             part_points = None
 
-        self.points = pose_1[part_points]
+        self.points = pose_1#[part_points]
 
         # self.points = np.array([[0, 0, 1],
         #                         [0, 0, 0]])
 
-        self.get_logger().info(f"publish {self.points}")
+        # self.get_logger().info(f"publish {self.points}")
         self.points = [Point(x=float(p[0]), y=float(p[1]), z=float(p[2])) for p in self.points]
 
         # Publish the keypoints data
