@@ -66,11 +66,11 @@ def Pixel2Optical(keypoints, intrinsic):
             pts.append([0.0, 0.0, 0.0])
             continue
 
-        dep_x = ((x - cx) * -z / fx) / 1000.0       
-        dep_y = ((y - cy) * -z / fy) / 1000.0         
-        dep_z = -z / 1000.0
+        dep_x = ((x - cx) * z / fx) / 1000.0       
+        dep_y = ((y - cy) * z / fy) / 1000.0         
+        dep_z = z / 1000.0
 
-        pts.append([-dep_x, -dep_y, -dep_z])
+        pts.append([dep_x, dep_y, dep_z])
 
     return np.array(pts)
 
@@ -209,7 +209,7 @@ def create_plane_marker(corners, frame_id="camera_color_optical_frame") -> Marke
 
     return marker
 
-def create_arrow_marker(start_point, normal_vector, frame_id="camera_link", marker_id=1, scale=0.5, color=None) -> Marker:
+def create_arrow_marker(start_point, normal_vector, frame_id="camera_color_optical_frame", marker_id=1, scale=0.5, color=None) -> Marker:
 
     marker = Marker()
     marker.header.frame_id = frame_id
@@ -237,7 +237,7 @@ def create_arrow_marker(start_point, normal_vector, frame_id="camera_link", mark
 
     # 设置颜色（默认绿色）
     if color is None:
-        color = ColorRGBA(r=0.0, g=0.0, b=1.0, a=1.0)  # blue
+        color = ColorRGBA(r=1.0, g=0.0, b=0.0, a=1.0)  # blue
     marker.color = color
 
     return marker
@@ -299,3 +299,65 @@ def get_depth(point_2d, depth_data, img):
             z = 0
         point_3d.append([x, y, z])
     return np.array(point_3d, dtype=np.float32)
+
+def chest_points_vertical(
+    p1, p2, p3, p4, depth_img,
+    num=50,            # 在 p1–p2 连线采样的点数
+    max_down=600,      # 每列向下扫描的最大像素数
+    step=5,            # 扫描步长
+    abs_tol=0.1,      # 绝对深度容差
+    rel_tol=0.15,      # 相对深度容差
+    invalid_depth=0    # 无效深度值
+):
+    
+    valid_pts = []
+
+    if p3[2] <100000 or p4[2]<10000:
+        # not detetct hip
+        h, w = depth_img.shape[:2]
+        x1, y1, z1 = p1
+        x2, y2, z2 = p2
+
+        # 深度区间
+        z_min, z_max = min(z1, z2), max(z1, z2)
+        band_low  = z_min - abs_tol
+        band_high = z_max + abs_tol
+        base_scale = max(z1, z2, 1e-6)
+
+        # 在 p1–p2 连线上采样
+        xs = np.linspace(x1, x2, num)
+        ys = np.linspace(y1, y2, num)
+        cols = np.stack([xs, ys], axis=1)
+
+        # 遍历每个采样点，竖直向下扫描
+        for x, y in cols:
+            xi, yi = int(round(x)), int(round(y))
+            if not (0 <= xi < w and 0 <= yi < h):
+                continue
+
+            for d in range(step, max_down+1, step):
+                xj = xi
+                yj = yi + d
+                if not (0 <= xj < w and 0 <= yj < h):
+                    break
+
+                z = depth_img[yj, xj]
+                if np.issubdtype(depth_img.dtype, np.floating) and np.isnan(z):
+                    continue
+                if z == invalid_depth or z <= 0:
+                    continue
+                z = float(z)
+
+                # 深度条件
+                in_band = (band_low <= z <= band_high)
+                close_to_any = (abs(z - z1) <= rel_tol*base_scale) or \
+                            (abs(z - z2) <= rel_tol*base_scale)
+
+                if in_band or close_to_any:
+                    valid_pts.append([xj, yj, z])
+    else:
+        # detetct hip
+        valid_pts = np.vstack((p3, p4))
+        
+
+    return np.array(valid_pts, dtype=float)

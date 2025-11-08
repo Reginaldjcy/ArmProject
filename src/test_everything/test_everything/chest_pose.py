@@ -44,84 +44,24 @@ class TestGetPlane(Node):
         human_1 = np.array(msg.matrix.data).reshape(-1,3)
         ## chose human body 
         chest_key = human_1[[11,12]]
+        hip_key = human_1[[23,24]]
         if self.depth_image is not None or self.img is not None:
-            # 根据胸部关键点，向下扫描，获取更多胸部区域点
-            def chest_points_vertical(
-                p1, p2, depth_img,
-                num=50,            # 在 p1–p2 连线采样的点数
-                max_down=600,      # 每列向下扫描的最大像素数
-                step=5,            # 扫描步长
-                abs_tol=0.1,      # 绝对深度容差
-                rel_tol=0.15,      # 相对深度容差
-                invalid_depth=0    # 无效深度值
-            ):
-                """
-                p1, p2: (x,y,z) 带深度的胸部关键点
-                depth_img: 深度图
-                返回:
-                valid_pts: (N,3)，胸部点 (x,y,z)
-                """
-                h, w = depth_img.shape[:2]
-                x1, y1, z1 = p1
-                x2, y2, z2 = p2
-
-                # 深度区间
-                z_min, z_max = min(z1, z2), max(z1, z2)
-                band_low  = z_min - abs_tol
-                band_high = z_max + abs_tol
-                base_scale = max(z1, z2, 1e-6)
-
-                # 在 p1–p2 连线上采样
-                xs = np.linspace(x1, x2, num)
-                ys = np.linspace(y1, y2, num)
-                cols = np.stack([xs, ys], axis=1)
-
-                valid_pts = []
-
-                # 遍历每个采样点，竖直向下扫描
-                for x, y in cols:
-                    xi, yi = int(round(x)), int(round(y))
-                    if not (0 <= xi < w and 0 <= yi < h):
-                        continue
-
-                    for d in range(step, max_down+1, step):
-                        xj = xi
-                        yj = yi + d
-                        if not (0 <= xj < w and 0 <= yj < h):
-                            break
-
-                        z = depth_img[yj, xj]
-                        if np.issubdtype(depth_img.dtype, np.floating) and np.isnan(z):
-                            continue
-                        if z == invalid_depth or z <= 0:
-                            continue
-                        z = float(z)
-
-                        # 深度条件
-                        in_band = (band_low <= z <= band_high)
-                        close_to_any = (abs(z - z1) <= rel_tol*base_scale) or \
-                                    (abs(z - z2) <= rel_tol*base_scale)
-
-                        if in_band or close_to_any:
-                            valid_pts.append([xj, yj, z])
-
-                return np.array(valid_pts, dtype=float)
             
-            below_pts = chest_points_vertical(human_1[11], human_1[12], self.depth_image,)
+            below_pts = chest_points_vertical(human_1[11], human_1[12], human_1[23], human_1[24], self.depth_image)
 
             # 合并到 chest_key
             if chest_key.shape[1] > 3:
                 chest_key = chest_key[:, :3]  # 保留 x,y,z
             if below_pts.size > 0:
-                    if below_pts.shape[0] > 50:
-                        idx = np.random.choice(below_pts.shape[0], 10, replace=False)  # 随机选择10个
+                    if below_pts.shape[0] > 1000:
+                        idx = np.random.choice(below_pts.shape[0], 1000, replace=False)  # 随机选择10个
                         below_pts_sample = below_pts[idx]
                     else:
                         below_pts_sample = below_pts
                     chest_key = np.vstack((chest_key, below_pts_sample))
             self.get_logger().info(f"chest keypoints num: {chest_key.shape[0]}")
 
-            chest_rviz= Pixel2Rviz(chest_key, intrinsic)
+            chest_rviz= Pixel2Optical(chest_key, intrinsic)
 
             # 发布选择点
             select_points = [Point(x=float(p[0]), y=float(p[1]), z=float(p[2])) for p in chest_rviz]
@@ -135,7 +75,7 @@ class TestGetPlane(Node):
 
 
             ########### make normal vector always front ##########
-            if normal_pose[0] > 0:
+            if normal_pose[2] > 0:
                 normal_pose = -normal_pose
 
             ########## for arrow and plane publish #########
@@ -152,9 +92,9 @@ class TestGetPlane(Node):
 
             angles_pose = compute_angles(normal_pose)
 
-
             # 打印结果
-            # self.get_logger().info(f'[Pose Plane] 夹角 x: {angles_pose[0]:.2f}°, y: {angles_pose[1]:.2f}°, z: {angles_pose[2]:.2f}°')
+            self.get_logger().info(f'[Pose Plane] 夹角 x: {angles_pose[0]:.2f}°, y: {angles_pose[1]:.2f}°, z: {180 - abs(angles_pose[2]):.2f}°')
+            # self.get_logger().info(f'{chest_key}')
 
             ### publish arrow
             pose_arrow = create_arrow_marker(point_pose, normal_pose)

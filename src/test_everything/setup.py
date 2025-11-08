@@ -32,6 +32,11 @@ setup(
             'show_jeff_brd = test_everything.show_jeff_brd:main',
             'face_pose = test_everything.face_pose:main',
             'chest_pose = test_everything.chest_pose:main',
+            'rect_pic = test_everything.rect_pic:main',
+            'gesture_1 = test_everything.gesture_1:main',
+            'gesture_2 = test_everything.gesture_2:main',
+            'gesture_recognizer_node = test_everything.gesture_recognizer_node:main',
+            'gesture_rhand = test_everything.gesture_rhand:main',
             
         ],
     },

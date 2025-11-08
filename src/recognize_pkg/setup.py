@@ -34,6 +34,8 @@ setup(
             'click_point = recognize_pkg.click_point:main',
             'webcam_save = recognize_pkg.webcam_save:main',    
             'icp = recognize_pkg.icp:main',
+            'keypoints_undistort = recognize_pkg.keypoints_undistort:main',
+            'keypoints_holistic = recognize_pkg.keypoints_holistic:main',
         ],
     },
 )

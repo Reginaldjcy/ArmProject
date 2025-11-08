@@ -24,6 +24,12 @@ import numpy as np
 from .utils import *
 import os
 
+K = np.array([[688.498, 0, 639.027],
+              [0, 688.467, 355.853],
+              [0, 0, 1]])
+D = np.array([47.997, -104.250, -0.000933, -0.000548,
+              115.033, 47.798, -103.811, 115.125])
+
 def load_model(model_path, device):
     model = Hopenet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], 66)
     model.load_state_dict(torch.load(model_path, map_location=device))
@@ -109,7 +115,6 @@ class Movenet(Node):
         frame = self.bridge.imgmsg_to_cv2(rgb_msg, 'bgr8')
         depth_image = self.bridge.imgmsg_to_cv2(depth_msg, desired_encoding='passthrough')
 
-
         # Run YOLO face detection
         results = self.face_model.predict(frame, verbose=False)
         faces = []
@@ -170,10 +175,8 @@ class Movenet(Node):
             z = get_depth(pseu_point, depth_image, frame)
             z = z[0]
 
-            self.pub_data = np.concatenate((z, np.array([roll, pitch, yaw])))                     #((z, np.array([yaw, pitch, roll])))
+            self.pub_data = np.concatenate((z, np.array([yaw, pitch, roll])))                 
 
-            # cv2.circle(frame, [int(tdx), int(tdy)], radius=30, color=(0, 255, 0), thickness=-1)
-            # print(f"{[int(tdx), int(tdy)]}")
             cv2.imshow('Camera', frame)
             cv2.waitKey(1)
             self.publisher_callback()
@@ -194,8 +197,6 @@ class Movenet(Node):
             msg.matrix = float_array
 
             self.publisher_.publish(msg)
-
-
 
 def main(args=None):
     rclpy.init(args=args)

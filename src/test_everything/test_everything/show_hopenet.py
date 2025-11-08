@@ -9,7 +9,7 @@ from std_msgs.msg import Header
 
 from scipy.spatial.transform import Rotation as R
 import numpy as np
-from .utils import Pixel2Rviz
+from .utils import Pixel2Optical
 
 intrinsic = np.array([[688.4984130859375, 0.0, 639.0274047851562],
                       [0.0, 688.466552734375, 355.8525390625],
@@ -30,25 +30,38 @@ class ArrowPublisher(Node):
 
 
     def subscription_callback(self, msg):
-        x, y, z, roll, pitch, yaw = msg.matrix.data    # rotation to rivz2
+        x, y, z, yaw, pitch, roll = msg.matrix.data  
+        
+        # 位置微调
+        if x > 640:
+            add_angle = 20 * ((x - 640 + 1e-6)/ 640)
+            yaw = yaw + add_angle
+
+        elif x < 640:
+            add_angle = 20 * ((640 - x + 1e-6)/ 640)
+            yaw = yaw - add_angle
+
+        else:
+            yaw = yaw
+            add_angle = 0
+
+
+        print(f'yaw: {yaw}, add_angle:{add_angle}')
+
+ 
         pseu_point = np.array([[x, y, z],
                                [0, 0, 0]])
-        pseu_list = Pixel2Rviz(pseu_point, intrinsic)
+        pseu_list = Pixel2Optical(pseu_point, intrinsic)
         x, y, z = pseu_list[0]
 
-        ########
-        # roll = 0.0
-        # pitch = 0.0  # up and down
-        # yaw = 0.0  # left and right
-
-        # 将欧拉角（角度制）转换为四元数 'xyz', [roll, pitch, yaw]
-        rot = R.from_euler('xyz', [roll, -pitch, -yaw+180], degrees=True)    #roll, -pitch, -yaw+180
+        # 将欧拉角（角度制）转换为四元数
+        rot = R.from_euler('yxz', [yaw+90, -pitch, roll],  degrees=True)    
         quat = rot.as_quat()  # 返回 [x, y, z, w]        
-        self.get_logger().info(f"Received angles: UD={pitch}, LR={yaw}")
+        # self.get_logger().info(f"Received angles: UD={pitch}, LR={yaw}")
 
         # 构建 Marker 消息
         marker = Marker()
-        marker.header.frame_id = "camera_link"
+        marker.header.frame_id = "camera_color_optical_frame"
         marker.header.stamp = self.get_clock().now().to_msg()
         marker.ns = "arrows"
         marker.id = 0
@@ -81,7 +94,7 @@ class ArrowPublisher(Node):
 
         # 发布 Marker
         self.marker_pub.publish(marker)
-        self.get_logger().info("Arrow marker published.")
+        # self.get_logger().info("Arrow marker published.")
 
         # 假设 position 和 quat 是 numpy array 或 list
         position = [x, y, z]
