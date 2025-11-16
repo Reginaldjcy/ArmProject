@@ -48,16 +48,16 @@ class FacePose(Node):
         # looking for face center point
         part_points = [0,1,2,3,4,5,6,7,8,9,10]
         face_point = self.face_point[part_points]
-        face_point= Pixel2Rviz(face_point , intrinsic)
+        face_point= Pixel2Optical(face_point , intrinsic)
         face_center = np.average(face_point, axis=0)
 
         # pose data
         x, y, z, roll, pitch, yaw = self.face_pose
         pseu_point = np.array([[x, y, z],
                                [0, 0, 0]])
-        pseu_list = Pixel2Rviz(pseu_point, intrinsic)
+        pseu_list = Pixel2Optical(pseu_point, intrinsic)
         x, y, z = pseu_list[0]
-        rot = R.from_euler('xyz', [roll, 90-pitch, 180-yaw], degrees=True) #roll, 90-pitch, 180-yaw
+        rot = R.from_euler('yxz', [yaw+90, -pitch, roll],  degrees=True)  #roll, 90-pitch, 180-yaw
         rotation_matrix = rot.as_matrix()
         normal_vector = rotation_matrix[:, 2]
         norm_marker = create_arrow_marker([x, y, z], normal_vector)
