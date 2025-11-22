@@ -1,7 +1,7 @@
 import numpy as np
 import bisect
 import time
-from .value_smoother import ValueSmoother
+from ...basic_function.basic_function.gesture_class import ValueSmoother
 from collections import deque
 from scipy.signal import savgol_filter
 

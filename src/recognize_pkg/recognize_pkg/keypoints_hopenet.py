@@ -100,10 +100,10 @@ class Movenet(Node):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Load Hopenet model
-        self.hopenet_model = load_model("/home/reginald/ArmProject/src/recognize_pkg/recognize_pkg/hopenet_robust_alpha1.pkl", self.device)
+        self.hopenet_model = load_model("/home/reginald/ArmProject/src/recognize_pkg/recognize_pkg/weights/hopenet_robust_alpha1.pkl", self.device)
         
         # Load YOLOv8n-face model
-        self.face_model = YOLO('/home/reginald/ArmProject/src/recognize_pkg/recognize_pkg/yolov11n-face.pt')  # Make sure you have the correct model file
+        self.face_model = YOLO('/home/reginald/ArmProject/src/recognize_pkg/recognize_pkg/weights/yolov11n-face.pt')  # Make sure you have the correct model file
 
         # Initial
         self.pub_data = None
@@ -162,10 +162,23 @@ class Movenet(Node):
                 image_tensor = preprocess_frame(face, self.device)
                 yaw, pitch, roll = predict_head_pose(self.hopenet_model, image_tensor, self.device)
                 #print(f"Yaw: {yaw:.2f}°, Pitch: {pitch:.2f}°, Roll: {roll:.2f}°")
+                        # 位置微调
 
                 # Calculate center position
                 tdx = (face_pos[i][0] + face_pos[i][2]) // 2
                 tdy = (face_pos[i][1] + face_pos[i][3]) // 2
+
+                if tdx > 640:
+                    add_angle = 20 * ((tdx - 640 + 1e-6)/ 640)
+                    yaw = yaw + add_angle
+
+                elif tdx < 640:
+                    add_angle = 20 * ((640 - tdx + 1e-6)/ 640)
+                    yaw = yaw - add_angle
+
+                else:
+                    yaw = yaw
+                    add_angle = 0
                 draw_axis(frame, yaw, pitch, roll, tdx=tdx, tdy=tdy)
             except Exception as e:
                 print(f"Error processing face: {e}")

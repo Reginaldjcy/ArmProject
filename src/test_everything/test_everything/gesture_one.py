@@ -3,7 +3,7 @@ import bisect
 import time
 from collections import deque
 from scipy.signal import savgol_filter
-from .value_smoother import ValueSmoother
+from ...basic_function.basic_function.gesture_class import ValueSmoother
 
 
 class GestureAnalyzer:

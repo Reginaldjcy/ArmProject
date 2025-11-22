@@ -23,7 +23,7 @@ import time
 import os
 
 # 你本地的模块（路径按你的工程实际调整）
-from .value_smoother import ValueSmoother
+from ...basic_function.basic_function.gesture_class import ValueSmoother
 from .calc_pose_landmarks import PoseLandmarkerSolver
 from .video_compositor import VideoCompositor
 
